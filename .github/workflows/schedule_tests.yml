@@ -30,10 +30,11 @@ jobs:
           pytest --html=test_logs/test_log.html --self-contained-html
 
       - name: Upload test report as artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v1
         with:
           name: test-report
           path: test_logs/test_log.html
+
 
       - name: Send email with report
         uses: dawidd6/action-send-mail@v3
