@@ -53,7 +53,7 @@ def test_open_webpage(url):
         assert "ACT" in driver.title or "actcorp" in driver.current_url.lower(), "Page title or URL did not load as expected."
         logger.info("✅ Webpage is available and loaded successfully.")
     except Exception as e:
-        logger.error(f"❌ Failed to open: {url} - Error: {e}")
+        logger.error(f" Failed to open: {url} - Error: {e}")
         raise
     finally:
         driver.quit()
