@@ -3,7 +3,7 @@ name: Scheduled Test Run
 on:
   schedule:
     - cron: '*/15 * * * *'  # Every 15 minutes (UTC)
-  workflow_dispatch:        # Enables manual trigger
+  workflow_dispatch:
 
 jobs:
   run-tests:
@@ -29,12 +29,6 @@ jobs:
           mkdir -p test_logs
           pytest --html=test_logs/test_log.html --self-contained-html
 
-      - name: Upload test report as artifact
-        uses: actions/upload-artifact@v1
-        with:
-          name: test-report
-          path: test_logs/test_log.html
-
       - name: Send email with report
         uses: dawidd6/action-send-mail@v3
         with:
@@ -55,3 +49,25 @@ jobs:
 
             Regards,  
             GitHub Actions
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Copy logs to root folder
+        run: |
+          mkdir -p pushed_logs
+          cp logs/*.log pushed_logs/
+
+      - name: Commit and push logs
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          git fetch
+          git checkout main
+          git pull
+          cp -r pushed_logs/* .
+          git add *.log
+          git commit -m "🔄 Add test log from scheduled run - $(date '+%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git HEAD:main
